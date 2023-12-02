@@ -1,22 +1,35 @@
 pipeline {
     agent any
-
+    
     stages {
-        stage('Check') {
+        stage('Build') {
             steps {
-                script {
-                    checkout scm
-                }
+                sh 'npm install'
             }
         }
-
-        stage('Build TADS') {
+        
+        stage('Test') {
             steps {
-                script {
-                    sh 'npm install'
-                    sh 'npm test'
-                }
+                sh 'npm test'
             }
+        }
+        
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t teste .'
+            }
+        }
+        
+        stage('Docker Run') {
+            steps {
+                sh 'docker-compose up -d'
+            }
+        }
+    }
+    
+    post {
+        always {
+            sh 'docker-compose down'
         }
     }
 }
